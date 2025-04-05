@@ -1,12 +1,26 @@
+import axios from 'axios';
 import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, StyleSheet, Text, View, Image, TextInput } from 'react-native';
+
 
 export default function App() {
   const [contador, setContador]  = useState(0);
   const [cep, setCep] = useState('')
   const [endereco, setEndereco] = useState<any>(null) // Variável para contar
   
+  useEffect(() => {
+    carregarCepInicial();
+
+  }, []);
+  
+
+  async function carregarCepInicial() {
+    let resposta = axios.get('https://viacep.com.br/ws/09390-120/json/')
+    let novoEndereco = (await resposta).data; // Carrega o CEP inicial
+    setEndereco(novoEndereco) // Carrega o CEP inicial
+  }
+
   function contar() {
     setContador(contador+1) // Incrementa o contador
     console.log('Contador:', contador); // Imprime o valor atual do contador
@@ -31,11 +45,17 @@ export default function App() {
       <Button title='Enviar CEP' onPress={pesquisarCEP}></Button>
       <View style={styles.card}>
         <Text>CEP: {cep}</Text>
-        {endereco&&<Text>Rua: {endereco.logradouro}</Text>}
+        {endereco && <View>
+          <Text>Rua: {endereco.logradouro}</Text>
+          <Text>Bairro: {endereco.bairro}</Text>
+          <Text>Cidade: {endereco.localidade}</Text>
+          <Text>Estado: {endereco.uf}</Text>
+          </View> }
       </View>
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -52,4 +72,5 @@ const styles = StyleSheet.create({
     borderRadius: 5, // Bordas arredondadas
 
   }
+  
 });
